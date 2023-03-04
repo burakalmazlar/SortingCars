@@ -2,13 +2,17 @@ package com.sortingcars.threadpool;
 
 public class ManagedThread extends Thread {
 
-    private Job job;
     private Object managedThreadLock = new Object();
+
+    private Job job;
+
     private boolean available = true;
     private boolean alive = false;
-    private ThreadPool pool;
 
-    public ManagedThread(ThreadPool pool) {
+    private final ThreadPool pool;
+
+    public ManagedThread(ThreadPool pool, int i) {
+        super("ManagedThread-" + i);
         this.pool = pool;
     }
 
@@ -19,7 +23,7 @@ public class ManagedThread extends Thread {
                 job.execute();
                 available = true;
                 pool.managedThreadIsAvailable();
-                // thread is executed its task and waiting for another or termination
+                // thread is executed its task and waiting for another job or termination
                 try {
                     managedThreadLock.wait();
                 } catch (InterruptedException e) {

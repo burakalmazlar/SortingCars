@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.System.nanoTime;
@@ -21,24 +20,13 @@ public class QuickCarSorting {
     public void run(LinkedList<Car>[] lists, int maxThread) {
         long start = nanoTime();
 
-        SortingEngine sortingEngine = new SortingEngine(maxThread, new QuickSorting());
+        SortingEngine<Car> sortingEngine = new SortingEngine<>(maxThread, new QuickSorting());
 
-        for (int i = 0; i < lists.length; i++) {
-            LinkedList<Car> carList = lists[i];
-            writeToFile(carList, "cars."+i+".in.txt");
-            // submitting lists for sorting
+        for (LinkedList<Car> carList : lists) {
             sortingEngine.sort(carList);
         }
 
-        for (int i = 0; i < lists.length; i++) {
-            // getting jobs from engine and the results
-            SortingJob job = sortingEngine.poll();
-            LinkedList result = job.getResult();
-            String fileName = "cars." + job.getJobId() + ".out.txt";
-            writeToFile(result, fileName);
-            long elapsedTimeInMs = job.getElapsedTimeInMs();
-            System.out.println(fileName + " -> " + elapsedTimeInMs + " ms");
-        }
+        sortingEngine.getAllResults();
 
         sortingEngine.shutdownEngine();
 
@@ -49,14 +37,6 @@ public class QuickCarSorting {
 
 
 
-    private void writeToFile(LinkedList<Car> carList, String fileName) {
-        try {
-            Files.createDirectories(Paths.get(".\\files\\"));
 
-            Files.write(Paths.get(".\\files\\"+fileName), carList.stream().map(Car::toString).collect(Collectors.toList()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

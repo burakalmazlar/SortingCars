@@ -5,9 +5,11 @@ import java.util.LinkedList;
 
 public class ThreadPool {
 
-    private LinkedList<ManagedThread> managedThreads;
-    private final int maxTreadCount;
     private Object threadPoolLock = new Object();
+
+    private LinkedList<ManagedThread> managedThreads;
+
+    private final int maxTreadCount;
 
     public ThreadPool(int maxThreadCount) {
         this.managedThreads = new LinkedList<ManagedThread>();
@@ -17,9 +19,10 @@ public class ThreadPool {
     public ManagedThread getAvailableThread() {
         synchronized (threadPoolLock) {
             ManagedThread thread;
-            if (managedThreads.size() < maxTreadCount) {
+            int existingThreadCount = managedThreads.size();
+            if (existingThreadCount < maxTreadCount) {
                 // creating new threads for pool until size reaches to max tread count
-                thread = new ManagedThread(this);
+                thread = new ManagedThread(this, existingThreadCount + 1);
                 managedThreads.add(thread);
             } else {
                 while (true) {
@@ -53,10 +56,6 @@ public class ThreadPool {
         for (ManagedThread managedThread : managedThreads) {
             managedThread.terminate();
         }
-    }
-
-    public int getMaxTreadCount(){
-        return maxTreadCount;
     }
 
 }

@@ -20,15 +20,12 @@ public class TestWithInteger {
 
     public void test() {
 
-        SortingEngine sortingEngine = new SortingEngine(2, new QuickSorting());
+        SortingEngine<Integer> sortingEngine = new SortingEngine<>(2, new QuickSorting());
 
         IntStream.range(1, 9)
                 .forEach(i -> sortingEngine.sort(generateArray()));
 
-        IntStream.range(1, 9)
-                .mapToObj(i -> sortingEngine.poll())
-                .collect(toList())
-                .stream().map(SortingJob::getResult).forEach(this::writeToConsole);
+        sortingEngine.getAllResults().forEach(this::writeToConsole);
 
         sortingEngine.shutdownEngine();
 

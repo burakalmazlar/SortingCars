@@ -1,19 +1,20 @@
 package com.sortingcars.engine;
 
+import com.sortingcars.QuickCarSorting;
 import com.sortingcars.car.Car;
+import com.sortingcars.sorting.QuickSorting;
 import com.sortingcars.sorting.Sorting;
 import com.sortingcars.threadpool.ManagedThread;
 import com.sortingcars.threadpool.ThreadPool;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class SortingEngine<T extends Comparable<T>> {
 
     private final ThreadPool pool;
     private final Sorting sorting;
     private long jobCounter = 0;
-    LinkedList<SortingJob<T>> jobList = new LinkedList<>();
+    private LinkedList<SortingJob<T>> jobList = new LinkedList<>();
 
     public SortingEngine(int poolSize, Sorting sorting) {
         this.pool = new ThreadPool(poolSize);
@@ -34,8 +35,12 @@ public class SortingEngine<T extends Comparable<T>> {
 
     }
 
-    public SortingJob<T> poll() {
-        return jobList.poll();
+    public LinkedList<LinkedList<T>> getAllResults() {
+        LinkedList<LinkedList<T>> results = new LinkedList<>();
+        while(!jobList.isEmpty()) {
+            results.add(jobList.poll().getResult());
+        }
+        return results;
     }
 
     public void shutdownEngine() {
