@@ -2,14 +2,7 @@ package com.sortingcars;
 
 import com.sortingcars.car.Car;
 import com.sortingcars.engine.SortingEngine;
-import com.sortingcars.engine.SortingJob;
-import com.sortingcars.sorting.QuickSorting;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.stream.Collectors;
+import com.sortingcars.sorting.QuickSortingLinkedList;
 
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -17,12 +10,13 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class QuickCarSorting {
 
-    public void run(LinkedList<Car>[] lists, int maxThread) {
+    public void run(QuickSortingLinkedList<Car>[] lists, int maxThread) {
         long start = nanoTime();
+        System.out.println("Sorting started.");
 
-        SortingEngine<Car> sortingEngine = new SortingEngine<>(maxThread, new QuickSorting());
+        SortingEngine<Car> sortingEngine = new SortingEngine<>(maxThread);
 
-        for (LinkedList<Car> carList : lists) {
+        for (QuickSortingLinkedList<Car> carList : lists) {
             sortingEngine.sort(carList);
         }
 
@@ -30,6 +24,7 @@ public class QuickCarSorting {
 
         sortingEngine.shutdownEngine();
 
+        System.out.println("Sorting ended.");
         System.err.println("Total elapsed time with "+maxThread+" thread = " +
                 MILLISECONDS.convert(nanoTime()-start, NANOSECONDS));
 

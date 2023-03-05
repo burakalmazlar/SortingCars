@@ -1,11 +1,8 @@
 package com.sortingcars.engine;
 
 import com.sortingcars.Main;
-import com.sortingcars.QuickCarSorting;
-import com.sortingcars.sorting.Sorting;
+import com.sortingcars.sorting.QuickSortingLinkedList;
 import com.sortingcars.threadpool.Job;
-
-import java.util.LinkedList;
 
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -15,26 +12,26 @@ public class SortingJob<T extends Comparable<T>> implements Job {
 
     private Object jobLock = new Object();
 
-    private LinkedList<T> list;
+    private QuickSortingLinkedList<T> list;
 
     private boolean executed = false;
     private final long id;
 
-    private final Sorting sorting;
 
-    public SortingJob(LinkedList<T> list, long id, Sorting sorting) {
+    public SortingJob(QuickSortingLinkedList<T> list, long id) {
         this.list = list;
         this.id = id;
-        this.sorting = sorting;
     }
 
     @Override
     public void execute() {
         synchronized (jobLock) {
             long start = nanoTime();
-            sorting.sort(list);
+            long iteration = list.sort();
             long elapsedTime = MILLISECONDS.convert(nanoTime() - start, NANOSECONDS);
-            System.out.println("Job " + id + " executed in " + elapsedTime + " ms by " + Thread.currentThread().getName());
+            String threadName = Thread.currentThread().getName();
+            System.out.println("Sorting job " + id + " executed in " + elapsedTime + " ms by " +
+                    threadName + " with " + iteration + " iteration.");
             String fileName = "cars-" + id + "-sorted.txt";
             Main.writeToFile(list, fileName);
             executed = true;
@@ -44,7 +41,7 @@ public class SortingJob<T extends Comparable<T>> implements Job {
         }
     }
 
-    public LinkedList<T> getResult() {
+    public QuickSortingLinkedList<T> getResult() {
 
         synchronized (jobLock) {
             if (executed) {

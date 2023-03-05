@@ -22,9 +22,10 @@ public class ManagedThread extends Thread {
             while (alive) {
                 job.execute();
                 available = true;
+                // informing pool a thread is now available to get another job
                 pool.managedThreadIsAvailable();
-                // thread is executed its task and waiting for another job or termination
                 try {
+                    // thread is executed its task and waiting for another job or termination
                     managedThreadLock.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();

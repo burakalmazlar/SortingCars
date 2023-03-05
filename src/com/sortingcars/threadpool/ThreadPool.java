@@ -33,7 +33,7 @@ public class ThreadPool {
                         }
                     }
                     try {
-                        // available threads needed but pool size reached
+                        // there is no available threads
                         // so waiting for any thread to finish its job and notify the pool
                         threadPoolLock.wait();
                     } catch (InterruptedException e) {
@@ -45,9 +45,10 @@ public class ThreadPool {
         }
     }
 
-    // informing pool a thread is now available to get another job
     public void managedThreadIsAvailable() {
         synchronized (threadPoolLock) {
+            // a thread informed pool
+            // notifying getAvailableThread method to return that available thread
             threadPoolLock.notify();
         }
     }

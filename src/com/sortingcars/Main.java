@@ -2,66 +2,68 @@ package com.sortingcars;
 
 import com.sortingcars.car.Car;
 import com.sortingcars.car.Color;
+import com.sortingcars.sorting.QuickSortingLinkedList;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
+import java.nio.file.*;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
 public class Main {
 
     public static final String FS = System.getProperty("file.separator");
+    public static final String LS = System.getProperty("line.separator");
 
     public static void main(String[] args) {
-        int numberOfLists = 100;
-        long numberOfCars = 100_000;
-        int maxThread = 30;
+        int numberOfLists = 10;
+        long numberOfCars = 1_000;
+        int maxThread = 5;
         if (args.length == 3) {
             numberOfLists = Integer.parseInt(args[0]);
             numberOfCars = Long.parseLong(args[1]);
             maxThread = Integer.parseInt(args[2]);
         }
 
-        LinkedList<Car>[] lists = new LinkedList[numberOfLists];
+        QuickSortingLinkedList<Car>[] lists = new QuickSortingLinkedList[numberOfLists];
         for (int i = 0; i < lists.length; i++) {
             lists[i] = generate(numberOfCars, i);
         }
-
         System.out.println("Car lists are ready.");
 
         new QuickCarSorting().run(lists, maxThread);
 
     }
 
-    private static LinkedList<Car> generate(long size, int i) {
+    private static QuickSortingLinkedList<Car> generate(long size, int i) {
 
-        LinkedList<Car> carList = LongStream.range(0, size).mapToObj(recId ->
-                        new Car(recId, UUID.randomUUID().toString(),
-                                Color.fromOrdinal(ThreadLocalRandom.current().nextInt(4)),
-                                Car.DESTINATIONS[ThreadLocalRandom.current().nextInt(5)]))
-                .collect(LinkedList::new, (a, b) -> a.add(b), (a, b) -> a.addAll(b));
+        QuickSortingLinkedList<Car> list = new QuickSortingLinkedList<>();
+        for (long id = 0; id < size; id++) {
+            list.add(new Car(id, UUID.randomUUID().toString(),
+                    Color.fromOrdinal(ThreadLocalRandom.current().nextInt(4)),
+                    Car.DESTINATIONS[ThreadLocalRandom.current().nextInt(5)]));
+        }
 
-        writeToFile(carList, "cars." + i + ".in.txt");
+        writeToFile(list, "cars." + i + ".in.txt");
 
-        return carList;
+        return list;
 
     }
 
-    public static <T extends Object> void writeToFile(LinkedList<T> list, String fileName) {
+    public static <T extends Object> void writeToFile(QuickSortingLinkedList list, String fileName) {
         try {
             String folder = "." + FS + "files" + FS;
             Path path = Paths.get(folder);
             if (!Files.isDirectory(path)) {
                 Files.createDirectories(path);
             }
-            Files.write(Paths.get(folder + fileName), list.stream().map(T::toString).collect(toList()));
+            StringBuilder lines = new StringBuilder();
+            for (Object o : list) {
+                lines.append(o.toString() + LS);
+            }
+            Files.write(Paths.get(folder + fileName), lines.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
