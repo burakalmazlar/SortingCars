@@ -30,9 +30,9 @@ public class SortingJob<T extends Comparable<T>> implements Job {
             long iteration = list.sort();
             long elapsedTime = MILLISECONDS.convert(nanoTime() - start, NANOSECONDS);
             String threadName = Thread.currentThread().getName();
-            System.out.println("Sorting job " + id + " executed in " + elapsedTime + " ms by " +
-                    threadName + " with " + iteration + " iteration.");
             String fileName = "cars-" + id + "-sorted.txt";
+            System.out.println("Sorting job " + id + " executed in " + elapsedTime + " ms by " +
+                    threadName + " with " + iteration + " iteration and written to file "+ fileName);
             Main.writeToFile(list, fileName);
             executed = true;
             // job execution finished
